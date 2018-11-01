@@ -22,12 +22,14 @@ public class BanInfo extends AbstractEntity {
     private String reason;
     private OffsetDateTime expiresAt;
     private BanLevel level;
-    @Relationship("banRevokeData")
-    @JsonIgnore
-    private BanRevokeData banRevokeData;
     @Relationship("moderationReport")
     @JsonIgnore
     private ModerationReport moderationReport;
+    private String revokeReason;
+    @Relationship("revokeAuthor")
+    @JsonIgnore
+    private Player revokeAuthor;
+    private OffsetDateTime revokeTime;
 
     @JsonIgnore
     public BanDurationType getDuration() {
@@ -36,14 +38,14 @@ public class BanInfo extends AbstractEntity {
 
     @JsonIgnore
     public BanStatus getBanStatus() {
-        if (banRevokeData != null) {
-            return BanStatus.DISABLED;
-        }
-        if (getDuration() == BanDurationType.PERMANENT) {
-            return BanStatus.BANNED;
-        }
-        return expiresAt.isAfter(OffsetDateTime.now())
-                ? BanStatus.BANNED
-                : BanStatus.EXPIRED;
+      if (revokeTime!=null && revokeTime.isBefore(OffsetDateTime.now())) {
+        return BanStatus.DISABLED;
+      }
+      if (getDuration() == BanDurationType.PERMANENT) {
+        return BanStatus.BANNED;
+      }
+      return expiresAt.isAfter(OffsetDateTime.now())
+        ? BanStatus.BANNED
+        : BanStatus.EXPIRED;
     }
 }
