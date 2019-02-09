@@ -1,5 +1,40 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0")
+  }
+}
+
 subprojects {
+
   apply plugin: 'java'
+  apply plugin: 'com.github.kt3k.coveralls'
+
   group = 'com.faforever.commons'
   version = '1.0-SNAPSHOT'
+
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+
+  dependencies {
+    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
+    compileOnly("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
+
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+    testCompileOnly("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
+    testCompile("junit:junit:${junitVersion}")
+    testCompile("org.mockito:mockito-core:${mockitoVersion}")
+  }
+
+
 }

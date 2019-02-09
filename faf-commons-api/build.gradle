@@ -1,33 +1,9 @@
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0")
-  }
-}
-
 version '1.0-SNAPSHOT'
 
-apply plugin: 'java'
-apply plugin: 'com.github.kt3k.coveralls'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-repositories {
-  mavenCentral()
-  jcenter()
-}
-
 dependencies {
-  compile("org.projectlombok:lombok:${lombokVersion}")
   compile("com.github.jasminb:jsonapi-converter:${jsonapiConverterVersion}")
-  compile("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
   compile("com.github.rutledgepaulv:q-builders:${qBuildersVersion}")
   compile project(":faf-commons-data")
 
-  testCompile("junit:junit:${junitVersion}")
   testCompile("pl.pojo:pojo-tester:${pojoTesterVersion}")
 }
