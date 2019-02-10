@@ -1,6 +1,7 @@
 package com.faforever.commons.api.elide.querybuilder;
 
-import lombok.Value;
+import com.faforever.commons.api.elide.ElideEntity;
+import lombok.Data;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -9,17 +10,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Value
+@Data
 public class QueryCriterion {
-  Class<?> rootClass;
+  private Class<? extends ElideEntity> rootClass;
 
-  String apiName;
+  private String apiName;
 
-  Set<QueryOperator> supportedOperators;
+  private Set<QueryOperator> supportedOperators;
 
-  List<String> proposals;
+  private List<String> proposals;
 
-  boolean allowsOnlyProposedValues;
+  private boolean allowsOnlyProposedValues;
 
   public String getId() {
     return rootClass.getSimpleName() + "::" + apiName;
