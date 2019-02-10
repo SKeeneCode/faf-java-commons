@@ -1,21 +1,20 @@
 package com.faforever.commons.api.dto;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class TutorialTest {
+class TutorialTest {
 
 
   @Test
-  public void testTutorialToString() {
+  void testTutorialToString() {
     Tutorial tutorial = new Tutorial();
     Tutorial secondTutorial = new Tutorial();
     TutorialCategory category = new TutorialCategory();
@@ -25,7 +24,7 @@ public class TutorialTest {
   }
 
   @Test
-  public void testTutorialCategoryToString() {
+  void testTutorialCategoryToString() {
     TutorialCategory tutorialCategory = getTutorialCategory();
     assertThat("correct to string", tutorialCategory.toString(),
       is(String.format("TutorialCategory(id=%s, categoryKey=%s, category=%s)", tutorialCategory.getId(),
@@ -33,28 +32,28 @@ public class TutorialTest {
   }
 
   @Test
-  public void testTutorialEquals() {
+  void testTutorialEquals() {
     Tutorial tutorial = new Tutorial();
     Tutorial secondTutorial = new Tutorial();
     assertThat("tutorial equals", tutorial.equals(secondTutorial), is(true));
   }
 
   @Test
-  public void testTutorialHashCode() {
+  void testTutorialHashCode() {
     Tutorial tutorial = new Tutorial();
     Tutorial secondTutorial = new Tutorial();
     assertThat("tutorial equals", tutorial.hashCode(), is(secondTutorial.hashCode()));
   }
 
   @Test
-  public void testTutorialCategoryEquals() {
+  void testTutorialCategoryEquals() {
     TutorialCategory tutorialCategory = getTutorialCategory();
     TutorialCategory secondTutorialCategory = getTutorialCategory();
     assertThat("tutorial equals", tutorialCategory.equals(secondTutorialCategory), is(true));
   }
 
   @Test
-  public void testTutorialCategoryHashCode() {
+  void testTutorialCategoryHashCode() {
     TutorialCategory tutorialCategory = getTutorialCategory();
     TutorialCategory secondTutorialCategory = getTutorialCategory();
     assertThat("tutorial equals", tutorialCategory.hashCode(), is(secondTutorialCategory.hashCode()));

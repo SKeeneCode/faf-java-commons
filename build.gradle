@@ -32,9 +32,16 @@ subprojects {
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
-    testCompile("junit:junit:${junitVersion}")
-    testCompile("org.mockito:mockito-core:${mockitoVersion}")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testImplementation("org.hamcrest:hamcrest-core:${hamcrestVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testCompileOnly("org.mockito:mockito-core:${mockitoVersion}")
+    testCompileOnly("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
   }
 
+  test {
+    useJUnitPlatform()
+  }
 
 }

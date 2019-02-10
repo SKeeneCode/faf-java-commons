@@ -1,14 +1,14 @@
 package com.faforever.commons.replay;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
 import static com.faforever.commons.test.IsUtilityClassMatcher.isUtilityClass;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class QtCompressTest {
+class QtCompressTest {
 
   public static final byte[] UNCOMPRESSED_BYTES = "AnyBytes".getBytes(StandardCharsets.US_ASCII);
   public static final byte[] COMPRESSED_BYTES = new byte[]{
@@ -19,18 +19,18 @@ public class QtCompressTest {
   };
 
   @Test
-  public void testIsUtilityClass() {
+  void testIsUtilityClass() {
     assertThat(QtCompress.class, isUtilityClass());
   }
 
   @Test
-  public void testQCompress() throws Exception {
+  void testQCompress() throws Exception {
     byte[] compressedBytes = QtCompress.qCompress(UNCOMPRESSED_BYTES);
     assertArrayEquals(COMPRESSED_BYTES, compressedBytes);
   }
 
   @Test
-  public void testQUncompress() throws Exception {
+  void testQUncompress() throws Exception {
     byte[] uncompressedBytes = QtCompress.qUncompress(COMPRESSED_BYTES);
     assertArrayEquals(UNCOMPRESSED_BYTES, uncompressedBytes);
   }

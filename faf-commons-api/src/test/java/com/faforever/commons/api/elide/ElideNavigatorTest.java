@@ -2,28 +2,28 @@ package com.faforever.commons.api.elide;
 
 import com.faforever.commons.api.dto.Ladder1v1Map;
 import com.faforever.commons.api.dto.MapVersion;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class ElideNavigatorTest {
+class ElideNavigatorTest {
   @Test
-  public void testGetList() {
+  void testGetList() {
     assertThat(ElideNavigator.of(Ladder1v1Map.class)
       .collection()
       .build(), is("/data/ladder1v1Map"));
   }
 
   @Test
-  public void testGetId() {
+  void testGetId() {
     assertThat(ElideNavigator.of(Ladder1v1Map.class)
       .id("5")
       .build(), is("/data/ladder1v1Map/5"));
   }
 
   @Test
-  public void testGetListSingleInclude() {
+  void testGetListSingleInclude() {
     assertThat(ElideNavigator.of(Ladder1v1Map.class)
       .collection()
       .addIncludeOnCollection("mapVersion")
@@ -31,7 +31,7 @@ public class ElideNavigatorTest {
   }
 
   @Test
-  public void testGetListMultipleInclude() {
+  void testGetListMultipleInclude() {
     assertThat(ElideNavigator.of(Ladder1v1Map.class)
       .collection()
       .addIncludeOnCollection("mapVersion")
@@ -40,7 +40,7 @@ public class ElideNavigatorTest {
   }
 
   @Test
-  public void testGetListFiltered() {
+  void testGetListFiltered() {
     assertThat(ElideNavigator.of(Ladder1v1Map.class)
       .collection()
       .addFilter(
@@ -53,7 +53,7 @@ public class ElideNavigatorTest {
   }
 
   @Test
-  public void testGetListCombinedFilter() {
+  void testGetListCombinedFilter() {
     assertThat(ElideNavigator.of(Ladder1v1Map.class)
       .collection()
       .addIncludeOnCollection("mapVersion")
@@ -70,7 +70,7 @@ public class ElideNavigatorTest {
   }
 
   @Test
-  public void testGetIdMultipleInclude() {
+  void testGetIdMultipleInclude() {
     assertThat(ElideNavigator.of(Ladder1v1Map.class)
       .id("5")
       .addIncludeOnId("mapVersion")
@@ -79,7 +79,7 @@ public class ElideNavigatorTest {
   }
 
   @Test
-  public void testGetListSorted() {
+  void testGetListSorted() {
     assertThat(ElideNavigator.of(Ladder1v1Map.class)
       .collection()
       .addSortingRule("sortCritASC", true)
@@ -88,7 +88,7 @@ public class ElideNavigatorTest {
   }
 
   @Test
-  public void testNavigateFromIdToId() {
+  void testNavigateFromIdToId() {
     assertThat(ElideNavigator.of(Ladder1v1Map.class)
       .id("5")
       .navigateRelationship(MapVersion.class, "mapVersion")

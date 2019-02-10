@@ -1,8 +1,7 @@
 package com.faforever.commons.io;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,53 +9,53 @@ import java.util.Random;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ZipperAndUnzipperTest {
+class ZipperAndUnzipperTest {
 
-  @Rule
-  public TemporaryFolder folderToZip = new TemporaryFolder();
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
-  @Rule
-  public TemporaryFolder targetFolder = new TemporaryFolder();
+  @TempDir
+  Path folderToZip;
+  @TempDir
+  Path tempFolder;
+  @TempDir
+  Path targetFolder;
 
   @Test
-  public void testZip() throws Exception {
-    folderToZip.create();
-    Path file1 = folderToZip.newFile("file1").toPath();
-    folderToZip.newFile("file2");
+  void testZip() throws Exception {
 
-    folderToZip.newFolder("folder1");
-    folderToZip.newFile("folder1/file1");
-    folderToZip.newFolder("folder1", "folder11");
-    folderToZip.newFile("folder1/folder11/file1");
+    Path file1 = Files.createFile(folderToZip.resolve("file1"));
+    Files.createFile(folderToZip.resolve("file2"));
 
-    folderToZip.newFolder("folder2");
-    folderToZip.newFile("folder2/file1");
+    Path folder1 = Files.createDirectory(folderToZip.resolve("folder1"));
+    Files.createFile(folder1.resolve("file1"));
+    Path folder11 = Files.createDirectory(folder1.resolve("folder11"));
+    Files.createFile(folder11.resolve("file1"));
 
-    folderToZip.newFolder("folder3");
+    Path folder2 = Files.createDirectory(folderToZip.resolve("folder2"));
+    Files.createFile(folder2.resolve("file1"));
+
+    Files.createDirectory(folderToZip.resolve("folder3"));
 
     byte[] file1Contents = new byte[1024];
     new Random().nextBytes(file1Contents);
 
     Files.write(file1, file1Contents);
 
-    Path zipFile = targetFolder.newFile("target.zip").toPath();
+    Path zipFile = targetFolder.resolve("target.zip");
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(zipFile))) {
-      Zipper.contentOf(folderToZip.getRoot().toPath())
-          .to(zipOutputStream)
-          .zip();
+      Zipper.contentOf(folderToZip)
+        .to(zipOutputStream)
+        .zip();
     }
 
     try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(zipFile))) {
       Unzipper.from(zipInputStream)
-          .to(targetFolder.getRoot().toPath())
-          .unzip();
+        .to(targetFolder)
+        .unzip();
     }
 
-    Path targetDirectory = targetFolder.getRoot().toPath();
+    Path targetDirectory = targetFolder;
 
     assertTrue(Files.exists(targetDirectory.resolve("file1")));
     assertTrue(Files.exists(targetDirectory.resolve("file2")));

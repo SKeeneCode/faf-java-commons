@@ -1,9 +1,8 @@
 package com.faforever.commons.replay;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,16 +10,16 @@ import java.time.Duration;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class ReplayDataParserTest {
+class ReplayDataParserTest {
 
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @TempDir
+  public Path temporaryFolder;
 
   @Test
   public void parse() throws Exception {
-    Path replayFile = temporaryFolder.getRoot().toPath().resolve("tmp.fafreplay");
+    Path replayFile = temporaryFolder.resolve("tmp.fafreplay");
     Files.copy(getClass().getResourceAsStream("/replay/test.fafreplay"), replayFile);
 
     ReplayData data = new ReplayDataParser(replayFile).parse();

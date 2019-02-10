@@ -19,9 +19,12 @@ package org.apache.maven.artifact.versioning;
  * under the License.
  */
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test ComparableVersion.
@@ -29,8 +32,7 @@ import java.util.Locale;
  * @author <a href="mailto:hboutemy@apache.org">Hervé Boutemy</a>
  */
 @SuppressWarnings("unchecked")
-public class ComparableVersionTest
-    extends TestCase {
+public class ComparableVersionTest {
 
   private static final String[] VERSIONS_QUALIFIER =
       {"1-alpha2snapshot", "1-alpha2", "1-alpha-123", "1-beta-2", "1-beta123", "1-m2", "1-m11", "1-rc", "1-cr2",
@@ -54,8 +56,8 @@ public class ComparableVersionTest
       Comparable low = c[i - 1];
       for (int j = i; j < versions.length; j++) {
         Comparable high = c[j];
-        assertTrue("expected " + low + " < " + high, low.compareTo(high) < 0);
-        assertTrue("expected " + high + " > " + low, high.compareTo(low) > 0);
+        assertTrue(low.compareTo(high) < 0, "expected " + low + " < " + high);
+        assertTrue(high.compareTo(low) > 0, "expected " + high + " > " + low);
       }
     }
   }
@@ -66,16 +68,17 @@ public class ComparableVersionTest
     String parsedCanonical = new ComparableVersion(canonical).getCanonical();
 
     System.out.println("canonical( " + version + " ) = " + canonical);
-    assertEquals("canonical( " + version + " ) = " + canonical + " -> canonical: " + parsedCanonical, canonical,
-        parsedCanonical);
+    assertEquals(canonical, parsedCanonical, "canonical( " + version + " ) = " + canonical + " -> canonical: " + parsedCanonical);
 
     return ret;
   }
 
+  @Test
   public void testVersionsNumber() {
     checkVersionsOrder(VERSIONS_NUMBER);
   }
 
+  @Test
   public void testVersionsEqual() {
     newComparable("1.0-alpha");
     checkVersionsEqual("1", "1");
@@ -127,13 +130,14 @@ public class ComparableVersionTest
   private void checkVersionsEqual(String v1, String v2) {
     Comparable c1 = newComparable(v1);
     Comparable c2 = newComparable(v2);
-    assertTrue("expected " + v1 + " == " + v2, c1.compareTo(c2) == 0);
-    assertTrue("expected " + v2 + " == " + v1, c2.compareTo(c1) == 0);
-    assertTrue("expected same hashcode for " + v1 + " and " + v2, c1.hashCode() == c2.hashCode());
-    assertTrue("expected " + v1 + ".equals( " + v2 + " )", c1.equals(c2));
-    assertTrue("expected " + v2 + ".equals( " + v1 + " )", c2.equals(c1));
+    assertTrue(c1.compareTo(c2) == 0, "expected " + v1 + " == " + v2);
+    assertTrue(c2.compareTo(c1) == 0, "expected " + v2 + " == " + v1);
+    assertTrue(c1.hashCode() == c2.hashCode(), "expected same hashcode for " + v1 + " and " + v2);
+    assertTrue(c1.equals(c2), "expected " + v1 + ".equals( " + v2 + " )");
+    assertTrue(c2.equals(c1), "expected " + v2 + ".equals( " + v1 + " )");
   }
 
+  @Test
   public void testVersionComparing() {
     checkVersionsOrder("1", "2");
     checkVersionsOrder("1.5", "2");
@@ -167,8 +171,8 @@ public class ComparableVersionTest
   private void checkVersionsOrder(String v1, String v2) {
     Comparable c1 = newComparable(v1);
     Comparable c2 = newComparable(v2);
-    assertTrue("expected " + v1 + " < " + v2, c1.compareTo(c2) < 0);
-    assertTrue("expected " + v2 + " > " + v1, c2.compareTo(c1) > 0);
+    assertTrue(c1.compareTo(c2) < 0, "expected " + v1 + " < " + v2);
+    assertTrue(c2.compareTo(c1) > 0, "expected " + v2 + " > " + v1);
   }
 
   /**
@@ -177,6 +181,7 @@ public class ComparableVersionTest
    * will in some cases throw runtime exception; see Netbeans issues <a href="https://netbeans.org/bugzilla/show_bug.cgi?id=240845">240845</a>
    * and <a href="https://netbeans.org/bugzilla/show_bug.cgi?id=226100">226100</a>
    */
+  @Test
   public void testMng5568() {
     String a = "6.1.0";
     String b = "6.1.0rc3";
@@ -187,6 +192,7 @@ public class ComparableVersionTest
     checkVersionsOrder(a, c);
   }
 
+  @Test
   public void testLocaleIndependent() {
     Locale orig = Locale.getDefault();
     Locale[] locales = {Locale.ENGLISH, new Locale("tr"), Locale.getDefault()};
@@ -206,6 +212,6 @@ public class ComparableVersionTest
 
     Comparable c2 = newComparable("2");
 
-    assertEquals("reused instance should be equivalent to new instance", c1, c2);
+    assertEquals(c1, c2, "reused instance should be equivalent to new instance");
   }
 }

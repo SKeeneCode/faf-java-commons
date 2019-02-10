@@ -2,24 +2,23 @@ package com.faforever.commons.fa;
 
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class ForgedAllianceExePatcherTest {
+class ForgedAllianceExePatcherTest {
 
-  @Rule
-  public TemporaryFolder fafBinDirectory = new TemporaryFolder();
+  @TempDir
+  Path fafBinDirectory;
 
   @Test
-  public void patchVersion() throws Exception {
+  void patchVersion() throws Exception {
     Path dummyExe = createDummyExeFile();
     ForgedAllianceExePatcher.patchVersion(dummyExe, 3660);
 
@@ -27,13 +26,13 @@ public class ForgedAllianceExePatcherTest {
   }
 
   private Path createDummyExeFile() throws IOException {
-    Path dummyExe = fafBinDirectory.getRoot().toPath().resolve("ForgedAlliance.exe");
+    Path dummyExe = fafBinDirectory.resolve("ForgedAlliance.exe");
     createFileWithSize(dummyExe, 12_444_928);
     return dummyExe;
   }
 
   @Test
-  public void readVersion() throws Exception {
+  void readVersion() throws Exception {
     Path dummyExe = createDummyExeFile();
     ForgedAllianceExePatcher.patchVersion(dummyExe, 3660);
 
