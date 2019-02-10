@@ -1,6 +1,7 @@
 package com.faforever.commons.api.elide.querybuilder.reflection;
 
 import com.faforever.commons.api.dto.Game;
+import com.faforever.commons.api.elide.querybuilder.ElideEntityScanner;
 import com.faforever.commons.api.elide.querybuilder.QueryCriterion;
 import org.junit.Before;
 import org.junit.Test;

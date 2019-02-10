@@ -1,6 +1,4 @@
-package com.faforever.commons.api.elide.querybuilder.reflection;
-
-import com.faforever.commons.api.elide.querybuilder.QueryOperator;
+package com.faforever.commons.api.elide.querybuilder;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

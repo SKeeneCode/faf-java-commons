@@ -1,9 +1,9 @@
 package com.faforever.commons.api.dto;
 
 import com.faforever.commons.api.elide.ElideEntity;
+import com.faforever.commons.api.elide.querybuilder.FilterDefinition;
 import com.faforever.commons.api.elide.querybuilder.QueryOperator;
-import com.faforever.commons.api.elide.querybuilder.reflection.FilterDefinition;
-import com.faforever.commons.api.elide.querybuilder.reflection.TransientFilter;
+import com.faforever.commons.api.elide.querybuilder.TransientFilter;
 import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;

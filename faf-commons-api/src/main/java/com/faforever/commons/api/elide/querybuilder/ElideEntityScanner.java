@@ -1,7 +1,6 @@
-package com.faforever.commons.api.elide.querybuilder.reflection;
+package com.faforever.commons.api.elide.querybuilder;
 
 import com.faforever.commons.api.elide.ElideEntity;
-import com.faforever.commons.api.elide.querybuilder.QueryCriterion;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -21,7 +20,7 @@ public class ElideEntityScanner {
   private final Class<? extends QueryCriterion> criterionClass;
 
   public ElideEntityScanner() {
-    this(QueryCriterion.class);
+    this(QueryCriterionImpl.class);
   }
 
   public ElideEntityScanner(@NotNull Class<? extends QueryCriterion> criterionClass) {

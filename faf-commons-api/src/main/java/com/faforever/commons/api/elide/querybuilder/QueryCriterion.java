@@ -1,7 +1,6 @@
 package com.faforever.commons.api.elide.querybuilder;
 
 import com.faforever.commons.api.elide.ElideEntity;
-import lombok.Data;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -10,30 +9,39 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Data
-public class QueryCriterion {
-  private Class<? extends ElideEntity> rootClass;
-
-  private String apiName;
-
-  private Set<QueryOperator> supportedOperators;
-
-  private List<String> proposals;
-
-  private boolean allowsOnlyProposedValues;
-
-  public String getId() {
-    return rootClass.getSimpleName() + "::" + apiName;
+public interface QueryCriterion {
+  default String getId() {
+    return getRootClass().getSimpleName() + "::" + getApiName();
   }
 
-  public String createRsql(QueryOperator operator, String[] elements) {
+  Class<? extends ElideEntity> getRootClass();
+
+  QueryCriterion setRootClass(Class<? extends ElideEntity> rootClass);
+
+  String getApiName();
+
+  QueryCriterion setApiName(String apiName);
+
+  Set<QueryOperator> getSupportedOperators();
+
+  QueryCriterion setSupportedOperators(Set<QueryOperator> supportedOperators);
+
+  List<String> getProposals();
+
+  QueryCriterion setProposals(List<String> proposals);
+
+  boolean isAllowsOnlyProposedValues();
+
+  QueryCriterion setAllowsOnlyProposedValues(boolean allowsOnlyProposedValues);
+
+  default String createRsql(QueryOperator operator, String[] elements) {
     operator.validateElementAmount(elements.length);
 
     if (!getSupportedOperators().contains(operator)) {
       throw new IllegalArgumentException(MessageFormat.format("The operator `{0}` is not allowed", operator));
     }
 
-    if (allowsOnlyProposedValues) {
+    if (isAllowsOnlyProposedValues()) {
       List<String> disallowedElements = Stream.of(elements)
         .filter(e -> !getProposals().contains(e))
         .collect(Collectors.toList());
