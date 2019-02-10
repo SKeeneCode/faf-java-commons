@@ -7,9 +7,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.collection.IsMapWithSize.aMapWithSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -26,12 +30,11 @@ class ElideEntityScannerTest {
 
   @Test
   void testScanFilterDefinition() {
-    Map<String, QueryCriterion> result = instance.scan(TestFilterClass.class);
+    Set<QueryCriterion> result = instance.scan(TestFilterClass.class);
 
-    assertThat(result, aMapWithSize(1));
-    assertThat(result, hasKey("TestFilterClass::stringField"));
+    assertThat(result, iterableWithSize(1));
 
-    QueryCriterion stringField = result.get("TestFilterClass::stringField");
+    QueryCriterion stringField = result.iterator().next();
     assertAll(
       () -> assertEquals(stringField.getId(), "TestFilterClass::stringField"),
       () -> assertEquals(stringField.getValueType(), String.class),
@@ -47,12 +50,11 @@ class ElideEntityScannerTest {
 
   @Test
   void testScanTransientFilterSimple() {
-    Map<String, QueryCriterion> result = instance.scan(TestTransientFilterClassSimple.class);
+    Set<QueryCriterion> result = instance.scan(TestTransientFilterClassSimple.class);
 
-    assertThat(result, aMapWithSize(1));
-    assertThat(result, hasKey("TestTransientFilterClassSimple::directRelation.stringField"));
+    assertThat(result, iterableWithSize(1));
 
-    QueryCriterion stringField = result.get("TestTransientFilterClassSimple::directRelation.stringField");
+    QueryCriterion stringField = result.iterator().next();
     assertAll(
       () -> assertEquals(stringField.getId(), "TestTransientFilterClassSimple::directRelation.stringField"),
       () -> assertEquals(stringField.getValueType(), String.class),
@@ -68,7 +70,8 @@ class ElideEntityScannerTest {
 
   @Test
   void testScanTransientFilterComplex() {
-    Map<String, QueryCriterion> result = instance.scan(TestTransientFilterClassComplex.class);
+    Map<String, QueryCriterion> result = instance.scan(TestTransientFilterClassComplex.class).stream()
+      .collect(Collectors.toMap(QueryCriterion::getId, Function.identity()));
 
     assertThat(result, aMapWithSize(2));
     assertThat(result, hasKey("TestTransientFilterClassComplex::test"));

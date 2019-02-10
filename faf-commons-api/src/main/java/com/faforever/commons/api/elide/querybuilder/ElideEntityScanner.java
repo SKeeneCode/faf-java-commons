@@ -10,8 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,28 +27,28 @@ public class ElideEntityScanner {
     this.criterionClass = criterionClass;
   }
 
-  public Map<String, QueryCriterion> scan(Class<? extends ElideEntity> clazz) {
+  public List<QueryCriterion> scan(Class<? extends ElideEntity> clazz) {
     log.debug("Begin root scan of {}", clazz);
     return scan(clazz, clazz, null, true);
   }
 
-  private Map<String, QueryCriterion> scan(Class<? extends ElideEntity> rootClass,
-                                           Class<? extends ElideEntity> scanClass,
-                                           String prefix, boolean recursive) {
+  private List<QueryCriterion> scan(Class<? extends ElideEntity> rootClass,
+                                    Class<? extends ElideEntity> scanClass,
+                                    String prefix, boolean recursive) {
     log.debug("Scanning class `{}` (root class `{}`) with prefix `{}`, recursive: {}",
       scanClass, rootClass, prefix, recursive);
 
-    Map<String, QueryCriterion> criteriaMap = FieldUtils.getFieldsListWithAnnotation(scanClass, FilterDefinition.class).stream()
+    List<QueryCriterion> criteriaSet = FieldUtils.getFieldsListWithAnnotation(scanClass, FilterDefinition.class).stream()
       .map(field -> buildFromField(rootClass, prefix, field))
-      .collect(Collectors.toMap(QueryCriterion::getId, Function.identity()));
+      .collect(Collectors.toList());
 
     if (recursive) {
       FieldUtils.getFieldsListWithAnnotation(scanClass, TransientFilter.class).stream()
         .map(field -> processTransientFilterField(rootClass, scanClass, prefix, field))
-        .forEach(criteriaMap::putAll);
+        .forEach(criteriaSet::addAll);
     }
 
-    return criteriaMap;
+    return criteriaSet;
   }
 
   private String concat(String present, String added) {
@@ -76,10 +75,10 @@ public class ElideEntityScanner {
       .setOrder(definition.order());
   }
 
-  private Map<String, QueryCriterion> processTransientFilterField(Class<? extends ElideEntity> rootClass,
-                                                                  Class<? extends ElideEntity> scanClass,
-                                                                  String currentPrefix,
-                                                                  Field field) {
+  private List<QueryCriterion> processTransientFilterField(Class<? extends ElideEntity> rootClass,
+                                                           Class<? extends ElideEntity> scanClass,
+                                                           String currentPrefix,
+                                                           Field field) {
     TransientFilter transientFilter = field.getAnnotation(TransientFilter.class);
     log.debug("Found TransientFilter: {}", transientFilter);
 
