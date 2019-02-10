@@ -10,14 +10,20 @@ import java.util.Set;
  * Basic implementation of QueryCriterion
  */
 @Data
-final class QueryCriterionImpl implements QueryCriterion {
+public final class QueryCriterionImpl<T> implements QueryCriterion<T> {
   private Class<? extends ElideEntity> rootClass;
 
   private String apiName;
 
+  private Class<T> valueType;
+
   private Set<QueryOperator> supportedOperators;
 
-  private List<String> proposals;
+  private List<T> proposals;
 
   private boolean allowsOnlyProposedValues;
+
+  private boolean advancedFilter;
+
+  private int order;
 }

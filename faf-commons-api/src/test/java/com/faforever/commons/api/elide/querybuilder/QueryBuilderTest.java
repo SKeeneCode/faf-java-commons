@@ -1,13 +1,13 @@
 package com.faforever.commons.api.elide.querybuilder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public class QueryBuilderTest {
+class QueryBuilderTest {
   @Test
-  public void testSimpleBuilder() {
+  void testSimpleBuilder() {
     String result = QueryBuilder.of(() -> "A")
       .build();
 
@@ -15,7 +15,7 @@ public class QueryBuilderTest {
   }
 
   @Test
-  public void testAndElementBuilder() {
+  void testAndElementBuilder() {
     String result = QueryBuilder.of(() -> "A")
       .and(() -> "B")
       .build();
@@ -31,7 +31,7 @@ public class QueryBuilderTest {
   }
 
   @Test
-  public void testOrElementBuilder() {
+  void testOrElementBuilder() {
     String result = QueryBuilder.of(() -> "A")
       .or(() -> "B")
       .build();
@@ -47,7 +47,7 @@ public class QueryBuilderTest {
   }
 
   @Test
-  public void testMixedAndOrElementBuilder() {
+  void testMixedAndOrElementBuilder() {
     String result = QueryBuilder.of(() -> "A")
       .and(() -> "B")
       .or(() -> "C")
@@ -58,7 +58,7 @@ public class QueryBuilderTest {
   }
 
   @Test
-  public void testConcatAdd() {
+  void testConcatAdd() {
     String result = QueryBuilder.concatAnd(() -> "A").evaluate();
     assertThat(result, is("(A)"));
 
@@ -72,7 +72,7 @@ public class QueryBuilderTest {
   }
 
   @Test
-  public void testConcatOr() {
+  void testConcatOr() {
     String result = QueryBuilder.concatOr(() -> "A").evaluate();
     assertThat(result, is("(A)"));
 
@@ -86,7 +86,7 @@ public class QueryBuilderTest {
   }
 
   @Test
-  public void testAndQueryBuilder() {
+  void testAndQueryBuilder() {
 
     String result = QueryBuilder.of(() -> "A")
       .and(QueryBuilder.of(() -> "B"))
@@ -104,7 +104,7 @@ public class QueryBuilderTest {
   }
 
   @Test
-  public void testOrQueryBuilder() {
+  void testOrQueryBuilder() {
 
     String result = QueryBuilder.of(() -> "A")
       .or(QueryBuilder.of(() -> "B"))

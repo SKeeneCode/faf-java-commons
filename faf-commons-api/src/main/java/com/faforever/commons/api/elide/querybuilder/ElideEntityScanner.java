@@ -68,9 +68,12 @@ public class ElideEntityScanner {
     return criterionClass.newInstance()
       .setRootClass(rootClass)
       .setApiName(concat(prefix, field.getName()))
+      .setValueType(field.getType())
       .setSupportedOperators(definition.allowedOperators().getEnumSet())
       .setProposals(Arrays.asList(definition.proposedValues()))
-      .setAllowsOnlyProposedValues(definition.onlyProposedValues());
+      .setAllowsOnlyProposedValues(definition.onlyProposedValues())
+      .setAdvancedFilter(definition.advancedFilter())
+      .setOrder(definition.order());
   }
 
   private Map<String, QueryCriterion> processTransientFilterField(Class<? extends ElideEntity> rootClass,
@@ -98,7 +101,7 @@ public class ElideEntityScanner {
       rootClass,
       (Class<? extends ElideEntity>) fieldClass,
       concat(currentPrefix, field.getName()),
-      false
+      transientFilter.enforceRecursion()
     );
   }
 }

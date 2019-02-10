@@ -9,32 +9,48 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface QueryCriterion {
+public interface QueryCriterion<T> {
   default String getId() {
     return getRootClass().getSimpleName() + "::" + getApiName();
   }
 
   Class<? extends ElideEntity> getRootClass();
 
-  QueryCriterion setRootClass(Class<? extends ElideEntity> rootClass);
+  QueryCriterion<T> setRootClass(Class<? extends ElideEntity> rootClass);
 
   String getApiName();
 
-  QueryCriterion setApiName(String apiName);
+  QueryCriterion<T> setApiName(String apiName);
+
+  Class<T> getValueType();
+
+  QueryCriterion<T> setValueType(Class<T> valueType);
 
   Set<QueryOperator> getSupportedOperators();
 
-  QueryCriterion setSupportedOperators(Set<QueryOperator> supportedOperators);
+  QueryCriterion<T> setSupportedOperators(Set<QueryOperator> supportedOperators);
 
-  List<String> getProposals();
+  List<T> getProposals();
 
-  QueryCriterion setProposals(List<String> proposals);
+  QueryCriterion<T> setProposals(List<T> proposals);
 
   boolean isAllowsOnlyProposedValues();
 
-  QueryCriterion setAllowsOnlyProposedValues(boolean allowsOnlyProposedValues);
+  QueryCriterion<T> setAllowsOnlyProposedValues(boolean allowsOnlyProposedValues);
 
-  default String createRsql(QueryOperator operator, String[] elements) {
+  boolean isAdvancedFilter();
+
+  QueryCriterion<T> setAdvancedFilter(boolean value);
+
+  int getOrder();
+
+  QueryCriterion<T> setOrder(int value);
+
+  default String createRsql(QueryOperator operator, T[] elements) {
+    if (!Objects.equals(getValueType(), elements.getClass().getComponentType())) {
+      throw new IllegalArgumentException("Array of elements must be of type " + getValueType());
+    }
+
     operator.validateElementAmount(elements.length);
 
     if (!getSupportedOperators().contains(operator)) {
@@ -42,7 +58,7 @@ public interface QueryCriterion {
     }
 
     if (isAllowsOnlyProposedValues()) {
-      List<String> disallowedElements = Stream.of(elements)
+      List<T> disallowedElements = Stream.of(elements)
         .filter(e -> !getProposals().contains(e))
         .collect(Collectors.toList());
 
@@ -56,6 +72,6 @@ public interface QueryCriterion {
 
     return getApiName() + operator.getRsqlOperator() + Stream.of(elements)
       .map(Objects::toString)
-      .collect(Collectors.joining(";"));
+      .collect(Collectors.joining("\",\"", "(\"", "\")"));
   }
 }
