@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,7 +30,7 @@ class ElideEntityScannerTest {
 
   @Test
   void testScanFilterDefinition() {
-    Set<QueryCriterion> result = instance.scan(TestFilterClass.class);
+    List<QueryCriterion> result = instance.scan(TestFilterClass.class);
 
     assertThat(result, iterableWithSize(1));
 
@@ -50,7 +50,7 @@ class ElideEntityScannerTest {
 
   @Test
   void testScanTransientFilterSimple() {
-    Set<QueryCriterion> result = instance.scan(TestTransientFilterClassSimple.class);
+    List<QueryCriterion> result = instance.scan(TestTransientFilterClassSimple.class);
 
     assertThat(result, iterableWithSize(1));
 

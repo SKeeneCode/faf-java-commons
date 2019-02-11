@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public interface QueryCriterion<T> {
   default String getId() {
@@ -46,19 +45,21 @@ public interface QueryCriterion<T> {
 
   QueryCriterion<T> setOrder(int value);
 
-  default String createRsql(QueryOperator operator, T[] elements) {
-    if (!Objects.equals(getValueType(), elements.getClass().getComponentType())) {
-      throw new IllegalArgumentException("Array of elements must be of type " + getValueType());
+  default String createRsql(QueryOperator operator, List<T> elements) {
+    for (T element : elements) {
+      if (!getValueType().isInstance(element)) {
+        throw new IllegalArgumentException("List must be of type List<" + getValueType() + ">");
+      }
     }
 
-    operator.validateElementAmount(elements.length);
+    operator.validateElementAmount(elements.size());
 
     if (!getSupportedOperators().contains(operator)) {
       throw new IllegalArgumentException(MessageFormat.format("The operator `{0}` is not allowed", operator));
     }
 
     if (isAllowsOnlyProposedValues()) {
-      List<T> disallowedElements = Stream.of(elements)
+      List<T> disallowedElements = elements.stream()
         .filter(e -> !getProposals().contains(e))
         .collect(Collectors.toList());
 
@@ -70,7 +71,7 @@ public interface QueryCriterion<T> {
       }
     }
 
-    return getApiName() + operator.getRsqlOperator() + Stream.of(elements)
+    return getApiName() + operator.getRsqlOperator() + elements.stream()
       .map(Objects::toString)
       .collect(Collectors.joining("\",\"", "(\"", "\")"));
   }
