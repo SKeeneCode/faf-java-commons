@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class QueryCriterionImplTest {
   @Test
   void testSuccess() {
-
     QueryCriterionImpl<String> instance = new QueryCriterionImpl<String>()
       .setSupportedOperators(QueryOperator.Preset.TEXT.getEnumSet())
       .setValueType(String.class)
@@ -21,6 +20,19 @@ class QueryCriterionImplTest {
 
     String result = instance.createRsql(QueryOperator.EQUALS, arguments);
     assertThat(result, is("someApiName=in=(\"success\")"));
+  }
+
+  @Test
+  void testWithSingleNullElement() {
+    QueryCriterionImpl<String> instance = new QueryCriterionImpl<String>()
+      .setSupportedOperators(QueryOperator.Preset.TEXT.getEnumSet())
+      .setValueType(String.class)
+      .setApiName("someApiName");
+    String o = null;
+    List<String> arguments = Lists.newArrayList(o);
+
+    IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> instance.createRsql(QueryOperator.EQUALS, arguments));
+    assertThat(illegalArgumentException.getMessage(), is("There are is only one element allowed for operator `EQUALS`, given: 0"));
   }
 
   @Test

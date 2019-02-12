@@ -46,6 +46,10 @@ public interface QueryCriterion<T> {
   QueryCriterion<T> setOrder(int value);
 
   default String createRsql(QueryOperator operator, List<T> elements) {
+    elements = elements.stream()
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
+
     for (T element : elements) {
       if (!getValueType().isInstance(element)) {
         throw new IllegalArgumentException("List must be of type List<" + getValueType() + ">");
