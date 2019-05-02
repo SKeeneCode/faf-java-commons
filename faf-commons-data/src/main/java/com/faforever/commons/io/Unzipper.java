@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.*;
 
 public final class Unzipper {
 
@@ -87,7 +87,7 @@ public final class Unzipper {
       }
 
       logger.trace("Writing file {}", targetFile);
-      try (OutputStream outputStream = Files.newOutputStream(targetFile, CREATE)) {
+      try (OutputStream outputStream = Files.newOutputStream(targetFile, CREATE, TRUNCATE_EXISTING, WRITE)) {
         int length;
         while ((length = zipInputStream.read(buffer)) != -1) {
           outputStream.write(buffer, 0, length);
