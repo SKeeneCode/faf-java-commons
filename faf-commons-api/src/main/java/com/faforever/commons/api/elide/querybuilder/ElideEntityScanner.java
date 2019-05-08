@@ -9,10 +9,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class ElideEntityScanner {
@@ -30,27 +30,45 @@ public class ElideEntityScanner {
 
   public List<QueryCriterion> scan(Class<? extends ElideEntity> clazz) {
     log.debug("Begin root scan of {}", clazz);
-    return scan(clazz, clazz, null, true, false);
+    return scan(clazz, clazz, null, false);
   }
 
   private List<QueryCriterion> scan(Class<? extends ElideEntity> rootClass,
                                     Class<? extends ElideEntity> scanClass,
-                                    String prefix, boolean recursive, boolean forceAdvanced) {
-    log.debug("Scanning class '{}' (root class '{}') with prefix '{}', recursive: {}",
-      scanClass, rootClass, prefix, recursive);
+                                    String prefix, boolean forceAdvanced) {
+    log.debug("Scanning class '{}' (root class '{}') with prefix '{}', forceAdvanced: {}",
+      scanClass, rootClass, prefix, forceAdvanced);
 
-    List<QueryCriterion> criteriaSet =
-      FieldUtils.getFieldsListWithAnnotation(scanClass, FilterDefinition.class).stream()
-        .map(field -> buildFromField(rootClass, prefix, field, forceAdvanced))
-      .collect(Collectors.toList());
+    List<QueryCriterion> criteriaSet = new ArrayList<>();
 
-    if (recursive) {
-      FieldUtils.getFieldsListWithAnnotation(scanClass, TransientFilter.class).stream()
-        .map(field -> processTransientFilterField(rootClass, scanClass, prefix, field))
-        .forEach(criteriaSet::addAll);
-    }
+    Arrays.stream(scanClass.getAnnotationsByType(ExplicitFilterDefinition.class))
+      .map(annotation -> buildFromExplicit(rootClass, prefix, annotation, forceAdvanced))
+      .forEach(criteriaSet::add);
+
+    FieldUtils.getFieldsListWithAnnotation(scanClass, FieldFilterDefinition.class).stream()
+      .map(field -> buildFromField(rootClass, prefix, field, forceAdvanced))
+      .forEach(criteriaSet::add);
+
+    FieldUtils.getFieldsListWithAnnotation(scanClass, TransientFilter.class).stream()
+      .map(field -> processTransientFilterField(rootClass, scanClass, prefix, field))
+      .forEach(criteriaSet::addAll);
 
     return criteriaSet;
+  }
+
+  @SneakyThrows
+  private QueryCriterion buildFromExplicit(Class<? extends ElideEntity> rootClass, String prefix, ExplicitFilterDefinition annotation, boolean forceAdvanced) {
+    log.debug("Found ExplicitFilterDefinition: {}", annotation);
+
+    return criterionClass.newInstance()
+      .setRootClass(rootClass)
+      .setApiName(concat(prefix, annotation.filterPath()))
+      .setValueType(annotation.valueType())
+      .setSupportedOperators(annotation.allowedOperators().getEnumSet())
+      .setProposals(Arrays.asList(annotation.proposedValues()))
+      .setAllowsOnlyProposedValues(annotation.onlyProposedValues())
+      .setAdvancedFilter(forceAdvanced || annotation.advancedFilter())
+      .setOrder(annotation.order());
   }
 
   private String concat(String present, String added) {
@@ -63,12 +81,12 @@ public class ElideEntityScanner {
 
   @SneakyThrows
   private QueryCriterion buildFromField(Class<? extends ElideEntity> rootClass, String prefix, Field field, boolean forceAdvanced) {
-    FilterDefinition definition = field.getAnnotation(FilterDefinition.class);
-    log.debug("Found FilterDefinition on field '{}': {}", field.getName(), definition);
+    FieldFilterDefinition definition = field.getAnnotation(FieldFilterDefinition.class);
+    log.debug("Found FieldFilterDefinition on field '{}': {}", field.getName(), definition);
 
     return criterionClass.newInstance()
       .setRootClass(rootClass)
-      .setApiName(concat(prefix, StringUtils.isBlank(definition.overrideFieldName()) ? field.getName() : definition.overrideFieldName()))
+      .setApiName(concat(prefix, field.getName()))
       .setValueType(field.getType())
       .setSupportedOperators(definition.allowedOperators().getEnumSet())
       .setProposals(Arrays.asList(definition.proposedValues()))
@@ -102,7 +120,6 @@ public class ElideEntityScanner {
       rootClass,
       (Class<? extends ElideEntity>) fieldClass,
       concat(currentPrefix, field.getName()),
-      transientFilter.enforceRecursion(),
       transientFilter.advancedFilter()
     );
   }

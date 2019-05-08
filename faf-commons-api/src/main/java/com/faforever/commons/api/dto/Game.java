@@ -1,7 +1,8 @@
 package com.faforever.commons.api.dto;
 
 import com.faforever.commons.api.elide.ElideEntity;
-import com.faforever.commons.api.elide.querybuilder.FilterDefinition;
+import com.faforever.commons.api.elide.querybuilder.ExplicitFilterDefinition;
+import com.faforever.commons.api.elide.querybuilder.FieldFilterDefinition;
 import com.faforever.commons.api.elide.querybuilder.TransientFilter;
 import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Relationship;
@@ -22,39 +23,43 @@ import static com.faforever.commons.api.elide.querybuilder.QueryOperator.Preset.
 @FieldNameConstants
 @EqualsAndHashCode(of = "id")
 @Type("game")
+@ExplicitFilterDefinition(filterPath = "featuredMod.displayName", valueType = String.class,
+  allowedOperators = ENUM, onlyProposedValues = true,
+  proposedValues = {"FAF", "Murder Party", "Nomads", "LABwars", "Ladder1v1", "Xtreme Wars", "Phantom-X",
+    "King of the Hill", "Claustrophobia", "FAF Beta", "FAF Develop", "Equilibrium"})
 public class Game implements ElideEntity {
   @Id
-  @FilterDefinition(allowedOperators = NUMERIC, order = 1)
+  @FieldFilterDefinition(allowedOperators = NUMERIC, order = 1)
   private String id;
 
-  @FilterDefinition(allowedOperators = TEXT, order = 2)
+  @FieldFilterDefinition(allowedOperators = TEXT, order = 2)
   private String name;
 
-  @FilterDefinition(allowedOperators = DATETIME)
+  @FieldFilterDefinition(allowedOperators = DATETIME)
   private OffsetDateTime startTime;
 
-  @FilterDefinition(allowedOperators = NULLABLE_DATETIME)
+  @FieldFilterDefinition(allowedOperators = NULLABLE_DATETIME)
   private OffsetDateTime endTime;
 
-  @FilterDefinition(allowedOperators = ENUM, advancedFilter = true)
+  @FieldFilterDefinition(allowedOperators = ENUM, advancedFilter = true)
   private Validity validity;
 
-  @FilterDefinition(allowedOperators = ENUM, advancedFilter = true)
+  @FieldFilterDefinition(allowedOperators = ENUM, advancedFilter = true)
   private VictoryCondition victoryCondition;
 
   @Relationship("reviews")
   private List<GameReview> reviews;
 
   @Relationship("playerStats")
-  @TransientFilter(enforceRecursion = true)
+  @TransientFilter
   private List<GamePlayerStats> playerStats;
 
   @Relationship("host")
-  @TransientFilter(enforceRecursion = true, advancedFilter = true)
+  @TransientFilter(advancedFilter = true)
   private Player host;
 
   @Relationship("featuredMod")
-  @FilterDefinition(allowedOperators = ENUM, overrideFieldName = "featuredMod.displayName", onlyProposedValues = true,
+  @FieldFilterDefinition(allowedOperators = ENUM, onlyProposedValues = true,
     proposedValues = {"FAF", "Murder Party", "Nomads", "LABwars", "Ladder1v1", "Xtreme Wars", "Phantom-X",
       "King of the Hill", "Claustrophobia", "FAF Beta", "FAF Develop", "Equilibrium"})
   private FeaturedMod featuredMod;

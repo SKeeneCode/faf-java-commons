@@ -104,7 +104,7 @@ class ElideEntityScannerTest {
   }
 
   public class TestFilterClass implements ElideEntity {
-    @FilterDefinition(allowedOperators = QueryOperator.Preset.TEXT, proposedValues = {"hello"},
+    @FieldFilterDefinition(allowedOperators = QueryOperator.Preset.TEXT, proposedValues = {"hello"},
       onlyProposedValues = true, advancedFilter = true, order = 51)
     private String stringField;
 
@@ -128,10 +128,10 @@ class ElideEntityScannerTest {
     @TransientFilter
     private TestTransientFilterClassSimple nonRecursiveRelation;
 
-    @TransientFilter(enforceRecursion = true)
+    @TransientFilter
     private TestTransientFilterClassSimple recursiveRelation;
 
-    @FilterDefinition(allowedOperators = QueryOperator.Preset.NUMERIC)
+    @FieldFilterDefinition(allowedOperators = QueryOperator.Preset.NUMERIC)
     private Integer test;
 
     @Override

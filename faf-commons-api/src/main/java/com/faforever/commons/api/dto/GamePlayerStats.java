@@ -1,7 +1,7 @@
 package com.faforever.commons.api.dto;
 
 import com.faforever.commons.api.elide.ElideEntity;
-import com.faforever.commons.api.elide.querybuilder.FilterDefinition;
+import com.faforever.commons.api.elide.querybuilder.FieldFilterDefinition;
 import com.faforever.commons.api.elide.querybuilder.QueryOperator;
 import com.faforever.commons.api.elide.querybuilder.TransientFilter;
 import com.github.jasminb.jsonapi.annotations.Id;
@@ -23,7 +23,7 @@ public class GamePlayerStats implements ElideEntity {
   private String id;
   private boolean ai;
 
-  @FilterDefinition(allowedOperators = QueryOperator.Preset.ENUM)
+  @FieldFilterDefinition(allowedOperators = QueryOperator.Preset.ENUM)
   private Faction faction;
   private byte color;
   private byte team;
@@ -37,7 +37,6 @@ public class GamePlayerStats implements ElideEntity {
   private OffsetDateTime scoreTime;
 
   @Relationship("game")
-  @TransientFilter
   private Game game;
 
   @Relationship("player")

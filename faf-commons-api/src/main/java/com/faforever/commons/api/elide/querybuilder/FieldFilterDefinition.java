@@ -8,6 +8,15 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target(FIELD)
 @Retention(RUNTIME)
-public @interface TransientFilter {
+public @interface FieldFilterDefinition {
+
+  QueryOperator.Preset allowedOperators();
+
+  String[] proposedValues() default {};
+
+  boolean onlyProposedValues() default false;
+
   boolean advancedFilter() default false;
+
+  int order() default 50;
 }
