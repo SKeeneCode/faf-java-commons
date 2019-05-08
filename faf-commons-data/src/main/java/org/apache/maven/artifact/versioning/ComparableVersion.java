@@ -20,13 +20,7 @@ package org.apache.maven.artifact.versioning;
  */
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Generic implementation of version comparison.
@@ -40,7 +34,7 @@ import java.util.Stack;
  * <li><code>snapshot</code></li> <li><code>(the empty string)</code> or <code>ga</code> or <code>final</code></li>
  * <li><code>sp</code></li> </ul> Unknown qualifiers are considered after known qualifiers, with lexical order (always
  * case insensitive), </li> <li>a dash usually precedes a qualifier, and is always less important than something
- * preceded with a dot.</li> </ul></p>
+ * preceded with a dot.</li> </ul>
  *
  * @author <a href="mailto:kenney@apache.org">Kenney Westerhof</a>
  * @author <a href="mailto:hboutemy@apache.org">Herv� Boutemy</a>
