@@ -19,28 +19,28 @@ import java.time.OffsetDateTime;
 @EqualsAndHashCode(of = "id")
 @Type("gamePlayerStats")
 public class GamePlayerStats implements ElideEntity {
-    @Id
-    private String id;
-    private boolean ai;
+  @Id
+  private String id;
+  private boolean ai;
 
   @FilterDefinition(allowedOperators = QueryOperator.Preset.ENUM)
   private Faction faction;
-    private byte color;
-    private byte team;
-    private byte startSpot;
-    private Float beforeMean;
-    private Float beforeDeviation;
-    private Float afterMean;
-    private Float afterDeviation;
-    private byte score;
-    @Nullable
-    private OffsetDateTime scoreTime;
+  private byte color;
+  private byte team;
+  private byte startSpot;
+  private Float beforeMean;
+  private Float beforeDeviation;
+  private Float afterMean;
+  private Float afterDeviation;
+  private byte score;
+  @Nullable
+  private OffsetDateTime scoreTime;
 
-    @Relationship("game")
-    @TransientFilter
-    private Game game;
+  @Relationship("game")
+  @TransientFilter
+  private Game game;
 
-    @Relationship("player")
-    @TransientFilter
-    private Player player;
+  @Relationship("player")
+  @TransientFilter
+  private Player player;
 }

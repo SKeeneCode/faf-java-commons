@@ -24,10 +24,10 @@ import static com.faforever.commons.api.elide.querybuilder.QueryOperator.Preset.
 @Type("game")
 public class Game implements ElideEntity {
   @Id
-  @FilterDefinition(allowedOperators = NUMERIC)
+  @FilterDefinition(allowedOperators = NUMERIC, order = 1)
   private String id;
 
-  @FilterDefinition(allowedOperators = TEXT)
+  @FilterDefinition(allowedOperators = TEXT, order = 2)
   private String name;
 
   @FilterDefinition(allowedOperators = DATETIME)
@@ -50,9 +50,13 @@ public class Game implements ElideEntity {
   private List<GamePlayerStats> playerStats;
 
   @Relationship("host")
+  @TransientFilter(enforceRecursion = true, advancedFilter = true)
   private Player host;
 
   @Relationship("featuredMod")
+  @FilterDefinition(allowedOperators = ENUM, overrideFieldName = "featuredMod.displayName", onlyProposedValues = true,
+    proposedValues = {"FAF", "Murder Party", "Nomads", "LABwars", "Ladder1v1", "Xtreme Wars", "Phantom-X",
+      "King of the Hill", "Claustrophobia", "FAF Beta", "FAF Develop", "Equilibrium"})
   private FeaturedMod featuredMod;
 
   @Relationship("mapVersion")

@@ -10,4 +10,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface TransientFilter {
   boolean enforceRecursion() default false;
+
+  boolean advancedFilter() default false;
 }

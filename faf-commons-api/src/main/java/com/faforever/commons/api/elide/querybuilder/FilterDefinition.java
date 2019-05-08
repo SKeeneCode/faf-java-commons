@@ -19,4 +19,6 @@ public @interface FilterDefinition {
   boolean advancedFilter() default false;
 
   int order() default 50;
+
+  String overrideFieldName() default "";
 }

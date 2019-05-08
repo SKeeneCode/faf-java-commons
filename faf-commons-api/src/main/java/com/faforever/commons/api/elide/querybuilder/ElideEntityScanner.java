@@ -3,6 +3,7 @@ package com.faforever.commons.api.elide.querybuilder;
 import com.faforever.commons.api.elide.ElideEntity;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,17 +30,18 @@ public class ElideEntityScanner {
 
   public List<QueryCriterion> scan(Class<? extends ElideEntity> clazz) {
     log.debug("Begin root scan of {}", clazz);
-    return scan(clazz, clazz, null, true);
+    return scan(clazz, clazz, null, true, false);
   }
 
   private List<QueryCriterion> scan(Class<? extends ElideEntity> rootClass,
                                     Class<? extends ElideEntity> scanClass,
-                                    String prefix, boolean recursive) {
-    log.debug("Scanning class `{}` (root class `{}`) with prefix `{}`, recursive: {}",
+                                    String prefix, boolean recursive, boolean forceAdvanced) {
+    log.debug("Scanning class '{}' (root class '{}') with prefix '{}', recursive: {}",
       scanClass, rootClass, prefix, recursive);
 
-    List<QueryCriterion> criteriaSet = FieldUtils.getFieldsListWithAnnotation(scanClass, FilterDefinition.class).stream()
-      .map(field -> buildFromField(rootClass, prefix, field))
+    List<QueryCriterion> criteriaSet =
+      FieldUtils.getFieldsListWithAnnotation(scanClass, FilterDefinition.class).stream()
+        .map(field -> buildFromField(rootClass, prefix, field, forceAdvanced))
       .collect(Collectors.toList());
 
     if (recursive) {
@@ -52,7 +54,7 @@ public class ElideEntityScanner {
   }
 
   private String concat(String present, String added) {
-    if (present == null) {
+    if (StringUtils.isBlank(present)) {
       return added;
     } else {
       return present + "." + added;
@@ -60,18 +62,18 @@ public class ElideEntityScanner {
   }
 
   @SneakyThrows
-  private QueryCriterion buildFromField(Class<? extends ElideEntity> rootClass, String prefix, Field field) {
+  private QueryCriterion buildFromField(Class<? extends ElideEntity> rootClass, String prefix, Field field, boolean forceAdvanced) {
     FilterDefinition definition = field.getAnnotation(FilterDefinition.class);
-    log.debug("Found FilterDefinition: {}", definition);
+    log.debug("Found FilterDefinition on field '{}': {}", field.getName(), definition);
 
     return criterionClass.newInstance()
       .setRootClass(rootClass)
-      .setApiName(concat(prefix, field.getName()))
+      .setApiName(concat(prefix, StringUtils.isBlank(definition.overrideFieldName()) ? field.getName() : definition.overrideFieldName()))
       .setValueType(field.getType())
       .setSupportedOperators(definition.allowedOperators().getEnumSet())
       .setProposals(Arrays.asList(definition.proposedValues()))
       .setAllowsOnlyProposedValues(definition.onlyProposedValues())
-      .setAdvancedFilter(definition.advancedFilter())
+      .setAdvancedFilter(forceAdvanced || definition.advancedFilter())
       .setOrder(definition.order());
   }
 
@@ -80,13 +82,13 @@ public class ElideEntityScanner {
                                                            String currentPrefix,
                                                            Field field) {
     TransientFilter transientFilter = field.getAnnotation(TransientFilter.class);
-    log.debug("Found TransientFilter: {}", transientFilter);
+    log.debug("Found TransientFilter on field '{}': {}", field.getName(), transientFilter);
 
     Class<?> fieldClass;
     if (Collection.class.isAssignableFrom(field.getType())) {
       ParameterizedType genericType = (ParameterizedType) field.getGenericType();
       fieldClass = (Class<?>) genericType.getActualTypeArguments()[0];
-      log.debug("Unpacked type `{}` from generic collection type: {}", fieldClass, genericType);
+      log.debug("Unpacked type '{}' from generic collection type: {}", fieldClass, genericType);
     } else {
       fieldClass = field.getType();
     }
@@ -100,7 +102,8 @@ public class ElideEntityScanner {
       rootClass,
       (Class<? extends ElideEntity>) fieldClass,
       concat(currentPrefix, field.getName()),
-      transientFilter.enforceRecursion()
+      transientFilter.enforceRecursion(),
+      transientFilter.advancedFilter()
     );
   }
 }
