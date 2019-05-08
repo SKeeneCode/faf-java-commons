@@ -1,5 +1,7 @@
 package com.faforever.commons.api.dto;
 
+import com.faforever.commons.api.elide.querybuilder.ExplicitFilterDefinition;
+import com.faforever.commons.api.elide.querybuilder.FieldFilterDefinition;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.jasminb.jsonapi.annotations.Relationship;
@@ -11,11 +13,17 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 
+import static com.faforever.commons.api.elide.querybuilder.QueryOperator.Preset.NUMERIC;
+import static com.faforever.commons.api.elide.querybuilder.QueryOperator.Preset.TEXT;
+
 @Getter
 @Setter
 @Type("player")
+@ExplicitFilterDefinition(filterPath = "globalRating.rating", valueType = Double.class, allowedOperators = NUMERIC)
+@ExplicitFilterDefinition(filterPath = "ladder1v1Rating.rating", valueType = Double.class, allowedOperators = NUMERIC)
 public class Player extends AbstractEntity {
-    private String login;
+  @FieldFilterDefinition(allowedOperators = TEXT)
+  private String login;
     @Relationship("names")
     List<NameRecord> names;
     @RestrictedVisibility("IsModerator")

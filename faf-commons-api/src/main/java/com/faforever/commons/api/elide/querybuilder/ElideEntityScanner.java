@@ -9,10 +9,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ElideEntityScanner {
@@ -53,7 +51,9 @@ public class ElideEntityScanner {
       .map(field -> processTransientFilterField(rootClass, scanClass, prefix, field))
       .forEach(criteriaSet::addAll);
 
-    return criteriaSet;
+    return criteriaSet.stream()
+      .sorted(Comparator.comparingInt(QueryCriterion::getOrder))
+      .collect(Collectors.toList());
   }
 
   @SneakyThrows

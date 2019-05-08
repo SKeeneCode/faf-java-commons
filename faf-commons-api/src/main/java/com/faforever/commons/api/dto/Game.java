@@ -59,11 +59,9 @@ public class Game implements ElideEntity {
   private Player host;
 
   @Relationship("featuredMod")
-  @FieldFilterDefinition(allowedOperators = ENUM, onlyProposedValues = true,
-    proposedValues = {"FAF", "Murder Party", "Nomads", "LABwars", "Ladder1v1", "Xtreme Wars", "Phantom-X",
-      "King of the Hill", "Claustrophobia", "FAF Beta", "FAF Develop", "Equilibrium"})
   private FeaturedMod featuredMod;
 
   @Relationship("mapVersion")
+  @TransientFilter
   private MapVersion mapVersion;
 }
