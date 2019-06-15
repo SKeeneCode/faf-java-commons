@@ -19,22 +19,25 @@ import java.util.List;
 @NoArgsConstructor
 public class Mod implements ElideEntity {
 
-    @Id
-    private String id;
-    private String displayName;
-    private String author;
-    private OffsetDateTime createTime;
+  @Id
+  private String id;
+  private String displayName;
+  private String author;
+  private OffsetDateTime createTime;
 
-    @Relationship("versions")
-    private List<ModVersion> versions;
+  @Relationship("uploader")
+  private Player uploader;
 
-    @Relationship("latestVersion")
-    private ModVersion latestVersion;
+  @Relationship("versions")
+  private List<ModVersion> versions;
 
-    public Mod(String id, String displayName, String author, OffsetDateTime createTime) {
-        this.id = id;
-        this.displayName = displayName;
-        this.author = author;
-        this.createTime = createTime;
-    }
+  @Relationship("latestVersion")
+  private ModVersion latestVersion;
+
+  public Mod(String id, String displayName, String author, OffsetDateTime createTime) {
+    this.id = id;
+    this.displayName = displayName;
+    this.author = author;
+    this.createTime = createTime;
+  }
 }

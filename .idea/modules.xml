@@ -2,13 +2,13 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api.iml" group="faf-commons-api" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api_main.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api_main.iml" group="faf-commons-api" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api_test.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api_test.iml" group="faf-commons-api" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data.iml" group="faf-commons-data" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data_main.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data_main.iml" group="faf-commons-data" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data_test.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data_test.iml" group="faf-commons-data" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-java-commons.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-java-commons.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api.iml" group="faf-java-commons/faf-commons-api" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api_main.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api_main.iml" group="faf-java-commons/faf-commons-api" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api_test.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-api/faf-commons-api_test.iml" group="faf-java-commons/faf-commons-api" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data.iml" group="faf-java-commons/faf-commons-data" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data_main.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data_main.iml" group="faf-java-commons/faf-commons-data" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data_test.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-commons-data/faf-commons-data_test.iml" group="faf-java-commons/faf-commons-data" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-java-commons.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-java-commons.iml" group="faf-java-commons" />
     </modules>
   </component>
 </project>
