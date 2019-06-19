@@ -14,30 +14,30 @@ import java.util.List;
 @Setter
 @Type("mapVersion")
 public class MapVersion extends AbstractEntity {
-    private String description;
-    private Integer maxPlayers;
-    private Integer width;
-    private Integer height;
-    private ComparableVersion version;
-    private String folderName;
-    // TODO name consistently with folderName
-    private String filename;
-    private boolean ranked;
-    private boolean hidden;
-    private URL thumbnailUrlSmall;
-    private URL thumbnailUrlLarge;
-    private URL downloadUrl;
+  private String description;
+  private Integer maxPlayers;
+  private Integer width;
+  private Integer height;
+  private ComparableVersion version;
+  private String folderName;
+  // TODO name consistently with folderName
+  private String filename;
+  private boolean ranked;
+  private boolean hidden;
+  private URL thumbnailUrlSmall;
+  private URL thumbnailUrlLarge;
+  private URL downloadUrl;
 
-    @Relationship("map")
-    private Map map;
+  @Relationship("map")
+  private Map map;
 
-    @Relationship("statistics")
-    private MapVersionStatistics statistics;
+  @Relationship("statistics")
+  private MapVersionStatistics statistics;
 
-    @Nullable
-    @Relationship("ladder1v1Map")
-    private Ladder1v1Map ladder1v1Map;
+  @Nullable
+  @Relationship("ladder1v1Map")
+  private Ladder1v1Map ladder1v1Map;
 
-    @Relationship("reviews")
-    private List<MapVersionReview> reviews;
+  @Relationship("reviews")
+  private List<MapVersionReview> reviews;
 }
