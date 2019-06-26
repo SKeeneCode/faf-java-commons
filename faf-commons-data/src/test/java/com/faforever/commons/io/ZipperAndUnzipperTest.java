@@ -6,8 +6,6 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Random;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,8 +14,6 @@ class ZipperAndUnzipperTest {
 
   @TempDir
   Path folderToZip;
-  @TempDir
-  Path tempFolder;
   @TempDir
   Path targetFolder;
 
@@ -43,17 +39,13 @@ class ZipperAndUnzipperTest {
     Files.write(file1, file1Contents);
 
     Path zipFile = targetFolder.resolve("target.zip");
-    try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(zipFile))) {
-      Zipper.contentOf(folderToZip)
-        .to(zipOutputStream)
-        .zip();
-    }
+    Zipper.contentOf(folderToZip)
+      .to(zipFile)
+      .zip();
 
-    try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(zipFile))) {
-      Unzipper.from(zipInputStream)
-        .to(targetFolder)
-        .unzip();
-    }
+    Unzipper.from(zipFile, "zip")
+      .to(targetFolder)
+      .unzip();
 
     Path targetDirectory = targetFolder;
 
