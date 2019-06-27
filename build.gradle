@@ -10,7 +10,7 @@ buildscript {
 
 subprojects {
 
-  apply plugin: 'java'
+  apply plugin: 'java-library'
   apply plugin: 'com.github.kt3k.coveralls'
 
   group = 'com.faforever.commons'
@@ -28,6 +28,8 @@ subprojects {
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
     compileOnly("org.jetbrains:annotations:${jetbrainsAnnotationsVersion}")
+    annotationProcessor("org.slf4j:slf4j-api:${slf4jVersion}")
+    compileOnly("org.slf4j:slf4j-api:${slf4jVersion}")
 
     testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
     testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
