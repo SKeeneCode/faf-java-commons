@@ -17,6 +17,14 @@ import static java.nio.file.StandardOpenOption.*;
 
 @Slf4j
 public final class Unzipper {
+  /**
+   * Total amount of written bytes after which zip bomb protection goes active
+   */
+  private final static int ZIP_BOMB_PROTECTION_WRITTEN_BYTES_THRESHOLD = 1_000_000;
+  /**
+   * Assume zip bomb if [read files from zip file] / [written bytes into stream] > [factor]
+   */
+  private final static int ZIP_BOMB_PROTECTION_FACTOR = 100;
 
   private final ArchiveInputStream archiveInputStream;
   private final boolean closeStream;
@@ -98,14 +106,14 @@ public final class Unzipper {
 
       log.trace("Writing file {}", targetFile);
       try (OutputStream outputStream = Files.newOutputStream(targetFile, CREATE, TRUNCATE_EXISTING, WRITE)) {
-        final long currentBytesDone = bytesDone;
+        final long currentBytesWritten = bytesDone;
         ByteCopier
           .from(archiveInputStream)
           .to(outputStream)
           .bufferSize(bufferSize)
           .byteCountInterval(byteCountInterval)
           .totalBytes(bytesTotal)
-          .listener((written, total) -> updateBytesCounted(currentBytesDone + written, total))
+          .listener((written, total) -> updateBytesCounted(currentBytesWritten + written, total))
           .copy();
 
         if (byteCountListener != null) {
@@ -121,9 +129,18 @@ public final class Unzipper {
   }
 
   private void updateBytesCounted(long written, long total) {
+    zipBombCheck(archiveInputStream.getBytesRead(), written);
+
     if (byteCountListener == null)
       return;
 
     byteCountListener.updateBytesWritten(written, total);
+  }
+
+  public void zipBombCheck(long inpuBytesRead, long outputBytesWritten) {
+    if (outputBytesWritten > ZIP_BOMB_PROTECTION_WRITTEN_BYTES_THRESHOLD
+      && outputBytesWritten / inpuBytesRead > ZIP_BOMB_PROTECTION_FACTOR) {
+      throw new ZipBombException("Zip bomb detected. Aborting unzip process");
+    }
   }
 }
