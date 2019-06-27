@@ -3,10 +3,12 @@ package com.faforever.commons.api.dto;
 import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Type("clan")
 public class Clan extends AbstractEntity {
     private String name;
