@@ -12,6 +12,7 @@ import java.util.Random;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class ZipperAndUnzipperTest {
 
@@ -48,7 +49,7 @@ class ZipperAndUnzipperTest {
       .to(zipFile)
       .zip();
 
-    Unzipper.from(zipFile, "zip")
+    Unzipper.from(zipFile)
       .to(targetFolder)
       .unzip();
 
@@ -70,7 +71,7 @@ class ZipperAndUnzipperTest {
     Path path = Paths.get(getClass().getResource("/zip/zip_bomb.zip").toURI());
 
     Unzipper unzipper = Unzipper
-      .from(path, "zip")
+      .from(path)
       .to(targetFolder);
 
     assertThrows(ZipBombException.class, unzipper::unzip);
@@ -80,7 +81,7 @@ class ZipperAndUnzipperTest {
   void testSlipZip() throws Exception {
     Path path = Paths.get(getClass().getResource("/zip/slip_zip.zip").toURI());
 
-    Unzipper unzipper = Unzipper.from(path, "zip")
+    Unzipper unzipper = Unzipper.from(path)
       .to(folderToUnzip);
 
     assertThrows(AccessDeniedException.class, unzipper::unzip);
@@ -90,10 +91,51 @@ class ZipperAndUnzipperTest {
   void testUnzip() throws Exception {
     Path path = Paths.get(getClass().getResource("/zip/normal_zip.zip").toURI());
 
-    Unzipper.from(path,"zip")
+    ByteCountListener byteCountListener = mock(ByteCountListener.class);
+
+    Unzipper.from(path)
+      .to(folderToUnzip)
+      .listener(byteCountListener)
+      .bufferSize(1)
+      .unzip();
+
+    assertThat(Files.exists(folderToUnzip.resolve("example.txt")), is(true));
+    assertThat(Files.exists(folderToUnzip.resolve("second_file.txt")), is(true));
+
+    verify(byteCountListener).updateBytesProcessed(48, 300);
+    verify(byteCountListener).updateBytesProcessed(300, 300);
+    verifyNoMoreInteractions(byteCountListener);
+  }
+
+  @Test
+  void testUnzipWithoutListener() throws Exception {
+    Path path = Paths.get(getClass().getResource("/zip/normal_zip.zip").toURI());
+
+    Unzipper.from(path)
       .to(folderToUnzip)
       .unzip();
 
     assertThat(Files.exists(folderToUnzip.resolve("example.txt")), is(true));
+    assertThat(Files.exists(folderToUnzip.resolve("second_file.txt")), is(true));
+  }
+
+  @Test
+  void testUnzipWithDifferentBufferSize() throws Exception {
+    Path path = Paths.get(getClass().getResource("/zip/normal_zip.zip").toURI());
+
+    ByteCountListener byteCountListener = mock(ByteCountListener.class);
+
+    Unzipper.from(path)
+      .to(folderToUnzip)
+      .listener(byteCountListener)
+      .bufferSize(50)
+      .unzip();
+
+    assertThat(Files.exists(folderToUnzip.resolve("example.txt")), is(true));
+    assertThat(Files.exists(folderToUnzip.resolve("second_file.txt")), is(true));
+
+    verify(byteCountListener).updateBytesProcessed(50, 300);
+    verify(byteCountListener).updateBytesProcessed(300, 300);
+    verifyNoMoreInteractions(byteCountListener);
   }
 }

@@ -65,7 +65,7 @@ public final class ByteCopier {
 
       long now = System.currentTimeMillis();
       if (byteCountListener != null && lastCountUpdate < now - byteCountInterval) {
-        byteCountListener.updateBytesWritten(bytesDone, totalBytes);
+        byteCountListener.updateBytesProcessed(bytesDone, totalBytes);
         lastCountUpdate = now;
       }
     }

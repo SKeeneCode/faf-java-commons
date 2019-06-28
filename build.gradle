@@ -38,8 +38,8 @@ subprojects {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testImplementation("org.hamcrest:hamcrest-core:${hamcrestVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
-    testCompileOnly("org.mockito:mockito-core:${mockitoVersion}")
-    testCompileOnly("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+    testImplementation("org.mockito:mockito-core:${mockitoVersion}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
   }
 
   test {

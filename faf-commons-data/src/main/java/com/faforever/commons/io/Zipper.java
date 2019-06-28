@@ -5,11 +5,9 @@ import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.utils.CountingOutputStream;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
@@ -29,7 +27,7 @@ public final class Zipper {
   private int bufferSize;
   private long bytesTotal;
   private long bytesDone;
-  private ArchiveOutputStream archiveOutputStream;
+  private OutputStream outputStream;
   private boolean closeStream;
 
   /**
@@ -60,14 +58,14 @@ public final class Zipper {
     return new Zipper(path, true, archiveType);
   }
 
-  public Zipper to(ArchiveOutputStream archiveOutputStream) {
-    this.archiveOutputStream = archiveOutputStream;
+  public Zipper to(OutputStream outputStream) {
+    this.outputStream = outputStream;
     this.closeStream = false;
     return this;
   }
 
-  public Zipper to(Path path) throws IOException, ArchiveException {
-    this.archiveOutputStream = new ArchiveStreamFactory().createArchiveOutputStream(archiveType, new BufferedOutputStream(Files.newOutputStream(path)));
+  public Zipper to(Path path) throws IOException {
+    this.outputStream = Files.newOutputStream(path);
     this.closeStream = true;
     return this;
   }
@@ -82,57 +80,69 @@ public final class Zipper {
     return this;
   }
 
-  public void zip() throws IOException {
-    Objects.requireNonNull(archiveOutputStream, "archiveOutputStream must not be null");
+  public void zip() throws IOException, ArchiveException {
+    Objects.requireNonNull(outputStream, "outputStream must not be null");
     Objects.requireNonNull(directoryToZip, "directoryToZip must not be null");
 
     bytesTotal = calculateTotalBytes();
     bytesDone = 0;
 
-    Files.walkFileTree(directoryToZip, new SimpleFileVisitor<Path>() {
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        Path relativePath = zipContent
-          ? directoryToZip.relativize(dir)
-          : directoryToZip.getParent().relativize(dir);
+    try (
+      CountingOutputStream countingOutputStream = new CountingOutputStream(outputStream);
+      BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(countingOutputStream);
+      ArchiveOutputStream archiveOutputStream = new ArchiveStreamFactory()
+        .createArchiveOutputStream(archiveType, bufferedOutputStream)) {
 
-        if (relativePath.equals(NEUTRAL_PATH)) {
+      Files.walkFileTree(directoryToZip, new SimpleFileVisitor<Path>() {
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+          Path relativePath = zipContent
+            ? directoryToZip.relativize(dir)
+            : directoryToZip.getParent().relativize(dir);
+
+          if (relativePath.equals(NEUTRAL_PATH)) {
+            return FileVisitResult.CONTINUE;
+          }
+
+          ArchiveEntry archiveEntry = archiveOutputStream.createArchiveEntry(dir.toFile(), relativePath.toString().replace(PATH_SEPARATOR, '/') + '/');
+          archiveOutputStream.putArchiveEntry(archiveEntry);
+          archiveOutputStream.closeArchiveEntry();
           return FileVisitResult.CONTINUE;
         }
 
-        ArchiveEntry archiveEntry = archiveOutputStream.createArchiveEntry(dir.toFile(), relativePath.toString().replace(PATH_SEPARATOR, '/') + '/');
-        archiveOutputStream.putArchiveEntry(archiveEntry);
-        archiveOutputStream.closeArchiveEntry();
-        return FileVisitResult.CONTINUE;
-      }
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          log.trace("Zipping file {}", file.toAbsolutePath());
 
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        log.trace("Zipping file {}", file.toAbsolutePath());
+          Path relativePath = zipContent
+            ? directoryToZip.relativize(file)
+            : directoryToZip.getParent().relativize(file);
 
-        Path relativePath = zipContent
-          ? directoryToZip.relativize(file)
-          : directoryToZip.getParent().relativize(file);
+          ArchiveEntry archiveEntry = archiveOutputStream.createArchiveEntry(file.toFile(), relativePath.toString().replace(PATH_SEPARATOR, '/'));
+          archiveOutputStream.putArchiveEntry(archiveEntry);
 
-        ArchiveEntry archiveEntry = archiveOutputStream.createArchiveEntry(file.toFile(), relativePath.toString().replace(PATH_SEPARATOR, '/'));
-        archiveOutputStream.putArchiveEntry(archiveEntry);
+          try (InputStream inputStream = Files.newInputStream(file)) {
+            final long currentBytesDone = bytesDone;
+            ByteCopier
+              .from(inputStream)
+              .to(archiveOutputStream)
+              .bufferSize(bufferSize)
+              .byteCountInterval(byteCountInterval)
+              .totalBytes(bytesTotal)
+              .listener((written, total) -> updateBytesCounted(currentBytesDone + written, total))
+              .copy();
+          }
 
-        try (InputStream inputStream = Files.newInputStream(file)) {
-          final long currentBytesDone = bytesDone;
-          ByteCopier
-            .from(inputStream)
-            .to(archiveOutputStream)
-            .bufferSize(bufferSize)
-            .byteCountInterval(byteCountInterval)
-            .totalBytes(bytesTotal)
-            .listener((written, total) -> updateBytesCounted(currentBytesDone + written, total))
-            .copy();
+          archiveOutputStream.closeArchiveEntry();
+          bytesDone = countingOutputStream.getBytesWritten();
+
+          return FileVisitResult.CONTINUE;
         }
-        archiveOutputStream.closeArchiveEntry();
-        return FileVisitResult.CONTINUE;
+      });
+    } finally {
+      if (closeStream) {
+        outputStream.close();
       }
-    });
-
-    if (closeStream) {
-      archiveOutputStream.close();
     }
   }
 
@@ -140,17 +150,18 @@ public final class Zipper {
     if (byteCountListener == null)
       return;
 
-    byteCountListener.updateBytesWritten(written, total);
+    byteCountListener.updateBytesProcessed(written, total);
   }
 
   private long calculateTotalBytes() throws IOException {
-    final long[] bytesTotal = {0};
+    final long[] currentBytes = {0};
     Files.walkFileTree(directoryToZip, new SimpleFileVisitor<Path>() {
+      @Override
       public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        bytesTotal[0] += Files.size(file);
+        currentBytes[0] += Files.size(file);
         return FileVisitResult.CONTINUE;
       }
     });
-    return bytesTotal[0];
+    return currentBytes[0];
   }
 }
