@@ -38,6 +38,9 @@ public final class ByteCopier {
     return this;
   }
 
+  /**
+   * Notifies about the progress of writing into the outputStream in a given time interval.
+   */
   public ByteCopier listener(ByteCountListener byteCountListener) {
     this.byteCountListener = byteCountListener;
     return this;
