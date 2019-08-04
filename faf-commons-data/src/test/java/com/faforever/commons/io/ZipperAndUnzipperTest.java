@@ -90,20 +90,31 @@ class ZipperAndUnzipperTest {
   @Test
   void testUnzip() throws Exception {
     Path path = Paths.get(getClass().getResource("/zip/normal_zip.zip").toURI());
+    long inputFileSize = Files.size(path);
 
     ByteCountListener byteCountListener = mock(ByteCountListener.class);
 
-    Unzipper.from(path)
+    Unzipper.Results results = Unzipper.from(path)
       .to(folderToUnzip)
       .listener(byteCountListener)
-      .bufferSize(1)
+      .bufferSize(150)
       .unzip();
 
-    assertThat(Files.exists(folderToUnzip.resolve("example.txt")), is(true));
-    assertThat(Files.exists(folderToUnzip.resolve("second_file.txt")), is(true));
 
-    verify(byteCountListener).updateBytesProcessed(48, 300);
-    verify(byteCountListener).updateBytesProcessed(300, 300);
+    Path file1 = folderToUnzip.resolve("example.txt");
+    Path file2 = folderToUnzip.resolve("second_file.txt");
+    assertThat(Files.exists(file1), is(true));
+    assertThat(Files.exists(file2), is(true));
+
+    long outputFileSize = Files.size(file1) + Files.size(file2);
+
+    assertAll(
+      () -> assertThat(inputFileSize, is(results.getTotalBytesRead())),
+      () -> assertThat(outputFileSize, is(results.getTotalBytesWritten())),
+      () -> assertThat(results.getFilesExtracted(), is(2))
+    );
+
+    verify(byteCountListener, atLeastOnce()).updateBytesProcessed(300, 300);
     verifyNoMoreInteractions(byteCountListener);
   }
 
@@ -134,8 +145,7 @@ class ZipperAndUnzipperTest {
     assertThat(Files.exists(folderToUnzip.resolve("example.txt")), is(true));
     assertThat(Files.exists(folderToUnzip.resolve("second_file.txt")), is(true));
 
-    verify(byteCountListener).updateBytesProcessed(50, 300);
-    verify(byteCountListener).updateBytesProcessed(300, 300);
+    verify(byteCountListener, atLeastOnce()).updateBytesProcessed(300, 300);
     verifyNoMoreInteractions(byteCountListener);
   }
 }

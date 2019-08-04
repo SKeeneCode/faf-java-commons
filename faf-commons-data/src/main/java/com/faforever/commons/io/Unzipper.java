@@ -1,11 +1,13 @@
 package com.faforever.commons.io;
 
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.utils.CountingInputStream;
+import org.apache.commons.compress.utils.CountingOutputStream;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -18,6 +20,61 @@ import static java.nio.file.StandardOpenOption.*;
 
 @Slf4j
 public final class Unzipper {
+  public Results unzip() throws IOException, ArchiveException {
+    try (CountingInputStream countingInputStream = new CountingInputStream(inputStream);
+         BufferedInputStream bufferedInputStream = new BufferedInputStream(countingInputStream, bufferSize);
+         ArchiveInputStream archiveInputStream = new ArchiveStreamFactory()
+           .createArchiveInputStream(bufferedInputStream)) {
+      ArchiveEntry archiveEntry;
+      long outputFilesBytesWritten = 0;
+      int filesExtracted = 0;
+      while ((archiveEntry = archiveInputStream.getNextEntry()) != null) {
+        Path targetFile = targetDirectory.resolve(archiveEntry.getName());
+        if (archiveEntry.isDirectory()) {
+          log.trace("Creating directory {}", targetFile);
+          Files.createDirectories(targetFile);
+          continue;
+        }
+
+        Path parentDirectory = targetFile.getParent();
+        if (Files.notExists(parentDirectory)) {
+          log.trace("Creating directory {}", parentDirectory);
+          Files.createDirectories(parentDirectory);
+        }
+
+        log.trace("Writing file {}", targetFile);
+        try (OutputStream fileOutputStream = Files.newOutputStream(targetFile, CREATE, TRUNCATE_EXISTING, WRITE);
+             CountingOutputStream countingOutputStream = new CountingOutputStream(fileOutputStream)) {
+          final long currentOutputFilesBytesWritten = outputFilesBytesWritten;
+
+          ByteCopier
+            .from(archiveInputStream)
+            .to(countingOutputStream)
+            .bufferSize(bufferSize)
+            .byteCountInterval(byteCountInterval)
+            .totalBytes(totalBytes)
+            .listener((written, total) -> zipBombCheck(countingInputStream.getBytesRead(), currentOutputFilesBytesWritten + countingOutputStream.getBytesWritten()))
+            .copy();
+
+          if (byteCountListener != null) {
+            byteCountListener.updateBytesProcessed(countingInputStream.getBytesRead(), totalBytes);
+          }
+
+          outputFilesBytesWritten += countingOutputStream.getBytesWritten();
+          filesExtracted++;
+
+        }
+      }
+
+      return new Results(countingInputStream.getBytesRead(), outputFilesBytesWritten, filesExtracted);
+    } finally {
+      if (closeStream) {
+        inputStream.close();
+      }
+    }
+  }
+
+
   private final InputStream inputStream;
   private final boolean closeStream;
 
@@ -89,56 +146,16 @@ public final class Unzipper {
     return this;
   }
 
-  public void unzip() throws IOException, ArchiveException {
-    try (CountingInputStream countingInputStream = new CountingInputStream(inputStream);
-         BufferedInputStream bufferedInputStream = new BufferedInputStream(countingInputStream, bufferSize);
-         ArchiveInputStream archiveInputStream = new ArchiveStreamFactory()
-           .createArchiveInputStream(bufferedInputStream)) {
-      ArchiveEntry archiveEntry;
-      while ((archiveEntry = archiveInputStream.getNextEntry()) != null) {
-        Path targetFile = targetDirectory.resolve(archiveEntry.getName());
-        if (archiveEntry.isDirectory()) {
-          log.trace("Creating directory {}", targetFile);
-          Files.createDirectories(targetFile);
-          continue;
-        }
-
-        Path parentDirectory = targetFile.getParent();
-        if (Files.notExists(parentDirectory)) {
-          log.trace("Creating directory {}", parentDirectory);
-          Files.createDirectories(parentDirectory);
-        }
-
-        log.trace("Writing file {}", targetFile);
-        try (OutputStream outputStream = Files.newOutputStream(targetFile, CREATE, TRUNCATE_EXISTING, WRITE)) {
-          final long inputFileBytesRead = countingInputStream.getBytesRead();
-          final long outputFilesBytesWritten = archiveInputStream.getBytesRead();
-
-          ByteCopier
-            .from(archiveInputStream)
-            .to(outputStream)
-            .bufferSize(bufferSize)
-            .byteCountInterval(byteCountInterval)
-            .totalBytes(totalBytes)
-            .listener((written, total) -> zipBombCheck(inputFileBytesRead, outputFilesBytesWritten + written))
-            .copy();
-
-          if (byteCountListener != null) {
-            byteCountListener.updateBytesProcessed(inputFileBytesRead, totalBytes);
-          }
-
-        }
-      }
-    } finally {
-      if (closeStream) {
-        inputStream.close();
-      }
-    }
+  @Value
+  public class Results {
+    long totalBytesRead;
+    long totalBytesWritten;
+    int filesExtracted;
   }
 
-  private void zipBombCheck(long inpuBytesRead, long outputBytesWritten) {
+  private void zipBombCheck(long inputBytesRead, long outputBytesWritten) {
     if (outputBytesWritten > zipBombByteCountThreshold
-      && outputBytesWritten / inpuBytesRead > zipBombProtectionFactor) {
+      && outputBytesWritten / inputBytesRead > zipBombProtectionFactor) {
       throw new ZipBombException("Zip bomb detected. Aborting unzip process");
     }
   }
