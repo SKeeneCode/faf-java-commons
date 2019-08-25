@@ -65,6 +65,7 @@ public class ModReader {
    *
    * @param mountBaseDir the local directory to resolve mount points against. May be {@code null}.
    */
+  @SneakyThrows
   public Mod readModInfo(InputStream inputStream, Path mountBaseDir) {
     Mod mod = new Mod();
 

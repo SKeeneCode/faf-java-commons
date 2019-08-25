@@ -1,7 +1,6 @@
 package com.faforever.commons.lua;
 
 import com.google.common.io.CharStreams;
-import lombok.SneakyThrows;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
@@ -25,12 +24,22 @@ public final class LuaLoader {
     }
   }
 
-  @SneakyThrows
-  public static LuaValue load(InputStream inputStream) {
+  public static LuaValue load(InputStream inputStream) throws IOException {
+    Globals globals = buildEnvironment();
+    globals.load(inputStream, "@" + inputStream.hashCode(), "bt", globals).invoke();
+    return globals;
+  }
+
+  public static LuaValue load(String luaCode) throws IOException {
+    Globals globals = buildEnvironment();
+    globals.load(luaCode, "@" + luaCode.hashCode(), globals).invoke();
+    return globals;
+  }
+
+  private static Globals buildEnvironment() throws IOException {
     Globals globals = JsePlatform.standardGlobals();
     try (InputStreamReader inputStreamReader = new InputStreamReader(LuaLoader.class.getResourceAsStream("/lua/faf.lua"), StandardCharsets.UTF_8)) {
       globals.baselib.load(globals.load(CharStreams.toString(inputStreamReader)));
-      globals.load(inputStream, "@" + inputStream.hashCode(), "bt", globals).invoke();
       return globals;
     }
   }
