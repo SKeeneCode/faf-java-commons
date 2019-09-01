@@ -80,5 +80,7 @@ public class LuaAccessorTest {
 
     assertTrue(instance.hasVariableMatching("skirmish", "type"));
     assertTrue(instance.hasVariableMatching(".*rmi.*", "type"));
+
+    assertFalse(instance.hasVariableMatching("[]invalidPattern+*?*", "type"));
   }
 }
