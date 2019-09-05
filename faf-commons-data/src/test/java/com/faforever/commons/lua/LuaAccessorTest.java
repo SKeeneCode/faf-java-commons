@@ -9,8 +9,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LuaAccessorTest {
   private LuaAccessor instance;
@@ -23,13 +27,19 @@ public class LuaAccessorTest {
 
   @Test
   void testEmptyLua() throws Exception {
-    assertThrows(LuaError.class, () -> LuaAccessor.of("emptyCode", "root"));
+    LuaError luaErrorMissingVersion = assertThrows(LuaError.class, () -> LuaAccessor.of("emptyCode", "root"));
+    assertThat(luaErrorMissingVersion.getMessage(), containsString("syntax error"));
 
     Path emptyTxtPath = Paths.get(getClass().getResource("/lua/empty.txt").toURI());
-    assertThrows(LuaError.class, () -> LuaAccessor.of(emptyTxtPath, "root"));
+    luaErrorMissingVersion = assertThrows(LuaError.class, () -> LuaAccessor.of(emptyTxtPath, "root"));
+    assertThat(luaErrorMissingVersion.getMessage(), is("Lua version declaration is missing."));
+  }
 
-    Path emptyLuaPath = Paths.get(getClass().getResource("/lua/empty.lua").toURI());
-    assertThrows(LuaError.class, () -> LuaAccessor.of(emptyLuaPath, "root"));
+  @Test
+  void testMissingVersionHeader() throws Exception {
+    Path wrongVersionLuaPath = Paths.get(getClass().getResource("/lua/wrong_version.lua").toURI());
+    LuaError error = assertThrows(LuaError.class, () -> LuaAccessor.of(wrongVersionLuaPath, "root"));
+    assertThat(error.getMessage(), is("Unsupported lua version: only version 3 is supported"));
   }
 
   @Test

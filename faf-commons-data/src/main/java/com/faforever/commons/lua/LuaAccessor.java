@@ -17,14 +17,20 @@ import static java.text.MessageFormat.format;
  * A utility class to safely read values from lua code
  */
 public class LuaAccessor {
+  private final static String VERSION = "version";
+
   private final LuaValue rootContext;
 
   private LuaAccessor(LuaValue rootContext) {
     this.rootContext = rootContext;
   }
 
-  public static LuaAccessor of(Path luaPath, String rootElement) throws IOException {
-    LuaValue rootContext = LuaLoader.loadFile(luaPath);
+  private static LuaAccessor of(LuaValue rootContext, String rootElement) {
+    if (!isValue(rootContext, VERSION)) {
+      throw new LuaError("Lua version declaration is missing.");
+    } else if (rootContext.get(VERSION).toint() != 3) {
+      throw new LuaError("Unsupported lua version: only version 3 is supported");
+    }
 
     if (!isValue(rootContext, rootElement)) {
       throw new LuaError(format("Root element ''{0}'' is not defined.", rootElement));
@@ -33,14 +39,14 @@ public class LuaAccessor {
     return new LuaAccessor(rootContext.get(rootElement));
   }
 
+  public static LuaAccessor of(Path luaPath, String rootElement) throws IOException {
+    LuaValue rootContext = LuaLoader.loadFile(luaPath);
+    return of(rootContext, rootElement);
+  }
+
   public static LuaAccessor of(String luaCode, String rootElement) throws IOException {
     LuaValue rootContext = LuaLoader.load(luaCode);
-
-    if (!isValue(rootContext, rootElement)) {
-      throw new LuaError(format("Root element ''{0}'' is not defined.", rootElement));
-    }
-
-    return new LuaAccessor(rootContext.get(rootElement));
+    return of(rootContext, rootElement);
   }
 
   public static boolean isValue(LuaValue parent, String name) {
