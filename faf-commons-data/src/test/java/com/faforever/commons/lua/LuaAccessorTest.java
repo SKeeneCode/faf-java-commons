@@ -93,4 +93,14 @@ public class LuaAccessorTest {
 
     assertFalse(instance.hasVariableMatching("[]invalidPattern+*?*", "type"));
   }
+
+  @Test
+  void testHasVariableMatchingIgnoreCase() {
+    assertThrows(IllegalArgumentException.class, () -> instance.hasVariableMatchingIgnoreCase("anyRegex"));
+
+    assertTrue(instance.hasVariableMatchingIgnoreCase("FOR EXAMPLE.*", "description"));
+    assertTrue(instance.hasVariableMatchingIgnoreCase("for example.*", "description"));
+
+    assertFalse(instance.hasVariableMatchingIgnoreCase("[]invalidPattern+*?*", "type"));
+  }
 }

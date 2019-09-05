@@ -102,4 +102,16 @@ public class LuaAccessor {
       })
       .orElse(false);
   }
+
+  public boolean hasVariableMatchingIgnoreCase(String regex, String... names) {
+    return readVariableString(names)
+      .map(string -> {
+        try {
+          return string.toLowerCase().matches(regex.toLowerCase());
+        } catch (PatternSyntaxException e) {
+          return false;
+        }
+      })
+      .orElse(false);
+  }
 }
