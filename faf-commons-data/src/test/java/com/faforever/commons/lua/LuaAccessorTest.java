@@ -85,6 +85,14 @@ public class LuaAccessorTest {
   }
 
   @Test
+  void testReadVariableBool() {
+    assertThrows(IllegalArgumentException.class, () -> instance.readVariableBool());
+
+    assertEquals(true, instance.readVariableBool("starts").get());
+    assertEquals(false, instance.readVariableBool("negative_bool").get());
+  }
+
+  @Test
   void testHasVariableMatching() {
     assertThrows(IllegalArgumentException.class, () -> instance.hasVariableMatching("anyRegex"));
 

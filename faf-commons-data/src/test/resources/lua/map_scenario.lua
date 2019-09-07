@@ -45,6 +45,7 @@ ScenarioInfo = {
   script="/maps/command_conquer_rush.v0007/command_conquer_rush_script.lua",
   size={ 256, 256 },
   starts=true,
+  negative_bool=false,
   type="skirmish"
 }
 

@@ -91,6 +91,11 @@ public class LuaAccessor {
       .orElseGet(OptionalInt::empty);
   }
 
+  public Optional<Boolean> readVariableBool(String... names) {
+    return readVariable(rootContext, names)
+      .map(LuaValue::toboolean);
+  }
+
   public boolean hasVariableMatching(String regex, String... names) {
     return readVariableString(names)
       .map(string -> {
