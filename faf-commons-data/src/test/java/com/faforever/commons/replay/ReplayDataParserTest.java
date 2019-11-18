@@ -1,11 +1,15 @@
 package com.faforever.commons.replay;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.LittleEndianDataInputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 
@@ -43,5 +47,20 @@ class ReplayDataParserTest {
 
     List<ChatMessage> chatMessages = data.getChatMessages();
     assertThat(chatMessages.get(0), is(new ChatMessage(Duration.ofSeconds(30), "kubkolienka", "all", "how does this game play?:D")));
+  }
+
+  @Test
+  void testReadString() throws Exception {
+    ReplayDataParser replayDataParser = new ReplayDataParser(Paths.get("."));
+
+    String unicodeString = "Oh, helloäöüthere!";
+
+    byte[] stringBytes = (unicodeString + "\0").getBytes(StandardCharsets.UTF_8);
+    ByteArrayInputStream byteInputStream = new ByteArrayInputStream(stringBytes);
+    LittleEndianDataInputStream dataInputStream = new LittleEndianDataInputStream(byteInputStream);
+
+    String result = replayDataParser.readString(dataInputStream);
+
+    assertThat(result, is(unicodeString));
   }
 }
