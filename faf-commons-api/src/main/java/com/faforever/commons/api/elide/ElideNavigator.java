@@ -1,6 +1,6 @@
 package com.faforever.commons.api.elide;
 
-import com.faforever.commons.api.dto.update.UpdateDto;
+import com.faforever.commons.api.update.UpdateDto;
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.github.rutledgepaulv.qbuilders.builders.QBuilder;
 import com.github.rutledgepaulv.qbuilders.conditions.Condition;

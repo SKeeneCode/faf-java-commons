@@ -1,4 +1,4 @@
-package com.faforever.commons.api.dto.update;
+package com.faforever.commons.api.update;
 
 import com.faforever.commons.api.dto.AvatarAssignment;
 import com.github.jasminb.jsonapi.annotations.Id;
