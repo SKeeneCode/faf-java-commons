@@ -1,6 +1,0 @@
-package com.faforever.commons.api.dto;
-
-public enum AchievementType {
-    STANDARD,
-    INCREMENTAL
-}
