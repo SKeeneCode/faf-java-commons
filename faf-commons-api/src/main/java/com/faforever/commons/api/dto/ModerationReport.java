@@ -23,14 +23,14 @@ public class ModerationReport extends AbstractEntity {
   private Set<BanInfo> bans;
   @Relationship("reporter")
   @JsonIgnore
-  private Player reporter;
+  private User reporter;
   @Relationship("game")
   @JsonIgnore
   private Game game;
   @Relationship("lastModerator")
   @JsonIgnore
-  private Player lastModerator;
+  private User lastModerator;
   @Relationship("reportedUsers")
   @JsonIgnore
-  private Set<Player> reportedUsers;
+  private Set<User> reportedUsers;
 }

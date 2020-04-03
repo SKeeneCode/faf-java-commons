@@ -13,17 +13,27 @@ import java.util.Set;
 
 @Getter
 @Setter
-@Type("player")
-public class Player extends AbstractEntity {
+@Type("user")
+@RestrictedVisibility("IsModerator")
+public class User extends AbstractEntity {
+
     private String login;
+
+    private String email;
+
+    private String userAgent;
+
+    private String steamId;
+
+    private String recentIpAddress;
+
+    private OffsetDateTime lastLogin;
+
     @Relationship("names")
     List<NameRecord> names;
 
-    @Relationship("globalRating")
-    private GlobalRating globalRating;
-
-    @Relationship("ladder1v1Rating")
-    private Ladder1v1Rating ladder1v1Rating;
+    @Relationship("bans")
+    private List<BanInfo> bans;
 
     @Relationship("avatarAssignments")
     @JsonIgnore
