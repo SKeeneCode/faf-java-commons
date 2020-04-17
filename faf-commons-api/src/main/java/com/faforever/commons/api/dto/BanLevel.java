@@ -1,5 +1,5 @@
 package com.faforever.commons.api.dto;
 
 public enum BanLevel {
-    CHAT, GLOBAL
+    CHAT, GLOBAL, VAULT
 }
