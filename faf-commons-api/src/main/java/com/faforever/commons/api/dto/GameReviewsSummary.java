@@ -3,15 +3,13 @@ package com.faforever.commons.api.dto;
 import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Value;
 
-@Getter
-@Setter
-@Type("mapVersionReview")
+@Value
+@Type("gameReviewsSummary")
 @EqualsAndHashCode(callSuper = true)
-public class MapVersionReview extends Review {
+public class GameReviewsSummary extends Review {
 
-    @Relationship("mapVersion")
-    private MapVersion mapVersion;
+  @Relationship("game")
+  Game game;
 }
