@@ -16,6 +16,9 @@ public class MapPool extends AbstractEntity {
 
     private String name;
 
+    @Relationship("matchmakerQueueMapPool")
+    private MatchmakerQueueMapPool matchmakerQueueMapPool;
+
     @Relationship("mapVersions")
     private List<MapVersion> mapVersions;
 
